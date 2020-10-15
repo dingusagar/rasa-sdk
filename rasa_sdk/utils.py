@@ -39,7 +39,7 @@ def all_subclasses(cls: Any) -> List[Any]:
     ]
 
 
-def add_logging_option_arguments(parser):
+def add_logging_level_option_arguments(parser):
     """Add options to an argument parser to configure logging levels."""
 
     # arguments for logging configuration
@@ -69,6 +69,15 @@ def add_logging_option_arguments(parser):
     )
 
 
+def add_logging_file_arguments(parser):
+    parser.add_argument(
+        "--log-file",
+        type=str,
+        default=None,
+        help="Store logs in specified file.",
+    )
+
+
 def configure_colored_logging(loglevel):
     import coloredlogs
 
@@ -83,6 +92,25 @@ def configure_colored_logging(loglevel):
         level_styles=level_styles,
         field_styles=field_styles,
     )
+
+
+def configure_file_logging(
+    logger_obj: logging.Logger, log_file: Optional[Text]
+) -> None:
+    """Configure logging to a file.
+
+    Args:
+        logger_obj: Logger object to configure.
+        log_file: Path of log file to write to.
+    """
+    if not log_file:
+        return
+
+    formatter = logging.Formatter("%(asctime)s [%(levelname)-5.5s]  %(message)s")
+    file_handler = logging.FileHandler(log_file, encoding="utf-8")
+    file_handler.setLevel(logger_obj.level)
+    file_handler.setFormatter(formatter)
+    logger_obj.addHandler(file_handler)
 
 
 def arguments_of(func) -> AbstractSet[Text]:
